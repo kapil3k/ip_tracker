@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- displays site properly based on user's device -->
+  <!-- <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png"> -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="  crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+  <link href="https://fonts.googleapis.com/css?family=Rubik:300,regular,500,600,700,800,900,300italic,italic,500italic,600italic,700italic,800italic,900italic" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css">
+  <title>IP Address Tracker</title>
+</head>
+<body>
+  <section class="top">
+    <h1>IP Address Tracker</h1>
+    <div class="input-field">
+      <input id="search-bar" type="tel" name="ip_address" max="15" min="0"><span id="arrow"><img src="./images/icon-arrow.svg" alt=""></span>
+    </div>
+  </section>
+  <section class="info">
+    <div><span class="heading">IP ADDRESS</span><div id="ip_add">-</div></div>
+    <div><span class="heading">LOCATION</span><div id="location">-</div></div>
+    <div><span class="heading">TIMEZONE</span> <div id="time">-</div></div>
+    <div><span class="heading">ISP</span> <div id="isp">-</div></div>
+  </section>
+  <div id="map"></div>
+</body>
+<script>
+
+  const searchBar = document.getElementById("search-bar");
+  const ipAdd = document.getElementById("ip_add")
+  const fitLocation = document.getElementById("location")
+  const time = document.getElementById("time")
+  const fixIsp = document.getElementById("isp")
+  const arrow = document.getElementById("arrow")
+
+
+  let getAddress = async function(ipVal=" "){
+    var url = `https://geo.ipify.org/api/v2/country,city?apiKey=at_q4TtrGWJIM3Kzey4uqX9ztPHKXPaT&ipAddress=${ipVal}`
+    var api = await fetch(url);
+    var data = await api.json();
+    var {ip,location,as,isp} = data;
+    var reso = api.status
+      if(reso === 422){
+        alert("Please enter correct IP address")
+      }else{
+        ipAdd.innerHTML = ip;
+        fitLocation.innerHTML = `${location.city},${location.region},${location.country}`;
+        time.innerHTML = location.timezone;
+        fixIsp.innerHTML = isp;
+        var latitude = location.lat;
+        var longitude = location.lng
+        var mymap = L.map('map').setView([`${latitude}`,`${longitude}`], 13);
+        console.log(ip)
+        console.log(location)
+        console.log(as)
+        console.log(isp)
+        console.log(reso)
+        console.log(latitude)
+        console.log(longitude)
+
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken: 'pk.eyJ1Ijoia2FwaWwzayIsImEiOiJja3ZrbGgxbW82dDRxMm5xd25lMDJzYTB4In0.GpNg6J6ITBkAlD2osDoGdA'
+        }).addTo(mymap);
+
+        L.marker([51.5, -0.09]).addTo(map)
+        .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+        .openPopup();
+            }
+  } 
+
+  getAddress()
+
+
+  arrow.addEventListener('click',(e)=>{
+    var ipGet = searchBar.value;
+    // console.log(latitude)
+    getAddress(ipGet)
+  })
+
+
+  searchBar.addEventListener('keydown',(e)=>{
+    var ipGet = searchBar.value;
+    console.log(ipGet)
+    if(e.keyCode === 13){
+    getAddress(ipGet)
+    }else{
+    }
+  })
+
+
+
+
+ 
+
+ 
+</script>
+</html>
